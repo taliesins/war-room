@@ -71,3 +71,7 @@ Temporary Items
 /certificates/ca.crt
 /certificates/dev.localhost.crt
 /certificates/dev.localhost.key.nopassword
+/kube-prometheus-overrides.yml
+/kubernetes-dashboard-overrides.yml
+/prometheus-operator-overrides.yml
+/rook-overrides.yml

@@ -160,3 +160,71 @@ EOF
 
 helm install stable/kubernetes-dashboard --name kubernetes-dashboard --namespace kube-system -f kubernetes-dashboard-overrides.yml
 kube_wait_for_pod_to_be_running kube-system kubernetes-dashboard
+
+helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
+cat << EOF > prometheus-operator-overrides.yml
+
+EOF
+helm install coreos/prometheus-operator --name prometheus-operator --namespace prometheus-system -f prometheus-operator-overrides.yml
+kube_wait_for_pod_to_be_running prometheus-system prometheus-operator
+
+#If deploying to GKE/EKS/AKS set
+#deployKubeScheduler: False
+#deployKubeControllerManager: False
+cat << EOF > kube-prometheus-overrides.yml
+alertmanager:
+  ingress:
+    enabled: true
+    annotations:
+        kubernetes.io/ingress.class: traefik
+    hosts: 
+        - alertmanager.dev.localhost
+prometheus:
+  ingress:
+    enabled: true
+    annotations:
+        kubernetes.io/ingress.class: traefik
+    hosts: 
+        - prometheus.dev.localhost
+  
+EOF
+
+helm install coreos/kube-prometheus --name kube-prometheus --namespace prometheus-system -f kube-prometheus-overrides.yml
+# Helm chart current doesn't allow you to set this yet
+kubectl apply -f kubernetes/prometheus/grafana.ingress.yaml --name kube-prometheus-grafana --namespace prometheus-system
+kube_wait_for_pod_to_be_running prometheus-system prometheus-kube-prometheus
+kube_wait_for_pod_to_be_running prometheus-system kube-prometheus-exporter-kube-state
+kube_wait_for_pod_to_be_running prometheus-system kube-prometheus-exporter-node
+kube_wait_for_pod_to_be_running prometheus-system alertmanager-kube-prometheus
+kube_wait_for_pod_to_be_running prometheus-system kube-prometheus-grafana
+
+#helm repo add rook-master https://charts.rook.io/master
+#helm search rook
+#cat << EOF > rook-overrides.yml
+#image:
+#  tag: v0.7.1-4.g4233e03
+#EOF
+#helm install rook-master/rook --name rook-operator --namespace kube-system -f rook-overrides.yml
+#kube_wait_for_pod_to_be_running kube-system rook-operator
+#kube_wait_for_pod_to_be_running kube-system rook-agent
+#kube_wait_for_pod_to_be_running kube-system rook-discover
+
+#helm repo add rook-beta https://charts.rook.io/beta
+#cat << EOF > rook-overrides.yml
+#EOF
+#helm install rook-beta/rook-ceph --name rook-operator --namespace kube-system -f rook-overrides.yml
+#kube_wait_for_pod_to_be_running kube-system rook-ceph-operator
+#kube_wait_for_pod_to_be_running kube-system rook-ceph-agent
+#kube_wait_for_pod_to_be_running kube-system rook-agent
+#kube_wait_for_pod_to_be_running kube-system rook-discover
+
+kubectl apply -f kubernetes/ceph/operator.yaml
+kube_wait_for_pod_to_be_running rook-ceph-system rook-ceph-operator
+kube_wait_for_pod_to_be_running rook-ceph-system rook-ceph-agent
+kube_wait_for_pod_to_be_running rook-ceph-system rook-discover
+
+kubectl apply -f kubernetes/cockroachdb/operator.yaml
+kube_wait_for_pod_to_be_running rook-cockroachdb-system rook-cockroachdb-operator
+
+kubectl apply -f kubernetes/minio/operator.yaml
+kube_wait_for_pod_to_be_running rook-minio-system rook-minio-operator
