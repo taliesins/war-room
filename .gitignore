@@ -1,1 +1,4 @@
 /traefik-overrides.yml
+/certificates/ca.crt
+/certificates/dev.localhost.crt
+/certificates/dev.localhost.key.nopassword
