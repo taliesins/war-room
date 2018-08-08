@@ -75,3 +75,4 @@ Temporary Items
 /kubernetes-dashboard-overrides.yml
 /prometheus-operator-overrides.yml
 /rook-overrides.yml
+/kafka-operator-overrides.yml

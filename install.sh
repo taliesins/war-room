@@ -106,6 +106,7 @@ kubectl create -f kubernetes/helm/helm-service-account.yaml
 
 helm init --service-account tiller
 kube_wait_for_pod_to_be_running kube-system tiller-deploy
+helm plugin install --version master https://github.com/sagansystems/helm-github.git
 
 cert=$(cat certificates/dev.localhost.crt | base64 | tr -d '\n')
 cert_key=$(cat certificates/dev.localhost.key.nopassword | base64 | tr -d '\n')
@@ -312,3 +313,15 @@ EOF
 kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/minio/operator.yaml -f minio-operator-overrides.yml 
 kube_wait_for_pod_to_be_running rook-minio-system rook-minio-operator
 
+cat << EOF > kafka-operator-overrides.yml
+resources:
+  limits:
+    memory: 512Mi
+    cpu: 500m
+  requests:
+    memory: 256Mi
+    cpu: 200m
+EOF
+
+helm install kubernetes/strimzi-kafka-operator --name kafka-operator --namespace kafka-system -f kafka-operator-overrides.yml
+kube_wait_for_pod_to_be_running kafka-system strimzi-cluster-operator
