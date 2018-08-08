@@ -51,4 +51,35 @@ fi
 
 helm reset
 kubectl create -f kubernetes/helm/helm-service-account.yaml
+
 helm init --service-account tiller
+while [[ $(kubectl get pod -n kube-system | grep tiller-deploy | grep Running | wc -l) -eq 0 ]]
+do
+  echo tiller-deploy not ready yet.
+  sleep 5
+done
+
+cat << EOF > traefik-overrides.yml
+imageTag: 1.6.5   
+serviceType: NodePort                               
+ssl:
+    enabled: true
+    enforced: true
+dashboard:
+    enabled: true
+    domain: "traefik.dev.localhost"
+rbac:
+    enabled: true
+EOF
+
+#Add tracing to Treafik
+#Add metrics to Traefik
+
+helm install stable/traefik --name traefik-ingress --namespace kube-system -f traefik-overrides.yml
+while [[ $(kubectl get pod -n kube-system | grep traefik-ingress | grep Running | wc -l) -eq 0 ]]
+do
+  echo traefik-ingress not ready yet.
+  sleep 5
+done
+
+
