@@ -218,13 +218,13 @@ kube_wait_for_pod_to_be_running prometheus-system kube-prometheus-grafana
 #kube_wait_for_pod_to_be_running kube-system rook-agent
 #kube_wait_for_pod_to_be_running kube-system rook-discover
 
-kubectl apply -f kubernetes/ceph/operator.yaml
+kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/ceph/cluster.yaml
 kube_wait_for_pod_to_be_running rook-ceph-system rook-ceph-operator
 kube_wait_for_pod_to_be_running rook-ceph-system rook-ceph-agent
 kube_wait_for_pod_to_be_running rook-ceph-system rook-discover
 
-kubectl apply -f kubernetes/cockroachdb/operator.yaml
+kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/cockroachdb/operator.yaml
 kube_wait_for_pod_to_be_running rook-cockroachdb-system rook-cockroachdb-operator
 
-kubectl apply -f kubernetes/minio/operator.yaml
+kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/minio/operator.yaml
 kube_wait_for_pod_to_be_running rook-minio-system rook-minio-operator
