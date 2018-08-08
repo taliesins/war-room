@@ -13,8 +13,18 @@ then
     exit 
 fi
 
+if ! command_exists helm
+then
+    printf '%s\n' "helm is not installed or on the path"
+    exit 
+fi
+
 if kube_rbac_is_not_installed
 then
     printf '%s\n' "RBAC is not installed"
     exit 1
 fi
+
+helm reset
+kubectl create -f kubernetes/helm/helm-service-account.yaml
+helm init --service-account tiller
