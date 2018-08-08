@@ -7,6 +7,9 @@ HOST ?= localhost
 install:
 	npm install
 
+tests:
+	npm test
+
 build:
 	docker build -t $(NAME) .
 
@@ -24,3 +27,4 @@ bash:
 
 stop:
 	docker stop $(INSTANCE) && docker rm $(INSTANCE)
+
