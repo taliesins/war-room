@@ -127,6 +127,10 @@ dashboard:
     domain: "traefik.dev.localhost"
 rbac:
     enabled: true
+cpuRequest: 100m
+memoryRequest: 20Mi
+cpuLimit: 200m
+memoryLimit: 64Mi
 EOF
 
 #Add tracing to Treafik
@@ -156,6 +160,13 @@ rbac:
   clusterAdminRole: true
 serviceAccount:
   name: kubernetes-dashboard
+resources:
+  limits:
+    cpu: 100m
+    memory: 50Mi
+  requests:
+    cpu: 100m
+    memory: 50Mi
 EOF
 
 helm install stable/kubernetes-dashboard --name kubernetes-dashboard --namespace kube-system -f kubernetes-dashboard-overrides.yml
@@ -163,7 +174,13 @@ kube_wait_for_pod_to_be_running kube-system kubernetes-dashboard
 
 helm repo add coreos https://s3-eu-west-1.amazonaws.com/coreos-charts/stable/
 cat << EOF > prometheus-operator-overrides.yml
-
+resources:
+  limits:
+    cpu: 200m
+    memory: 100Mi
+  requests:
+    cpu: 100m
+    memory: 50Mi
 EOF
 helm install coreos/prometheus-operator --name prometheus-operator --namespace prometheus-system -f prometheus-operator-overrides.yml
 kube_wait_for_pod_to_be_running prometheus-system prometheus-operator
@@ -179,6 +196,13 @@ alertmanager:
         kubernetes.io/ingress.class: traefik
     hosts: 
         - alertmanager.dev.localhost
+  resources: 
+    limits:
+      cpu: 500m
+      memory: 256Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
 prometheus:
   ingress:
     enabled: true
@@ -186,7 +210,13 @@ prometheus:
         kubernetes.io/ingress.class: traefik
     hosts: 
         - prometheus.dev.localhost
-  
+  resources: 
+    limits:
+      cpu: 500m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi  
 EOF
 
 helm install coreos/kube-prometheus --name kube-prometheus --namespace prometheus-system -f kube-prometheus-overrides.yml
@@ -218,13 +248,67 @@ kube_wait_for_pod_to_be_running prometheus-system kube-prometheus-grafana
 #kube_wait_for_pod_to_be_running kube-system rook-agent
 #kube_wait_for_pod_to_be_running kube-system rook-discover
 
-kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/ceph/cluster.yaml
+cat << EOF > ceph-operator-overrides.yml
+spec:
+  resources:
+    mgr:
+      limits:
+        cpu: "500m"
+        memory: "1024Mi"
+      requests:
+        cpu: "250m"
+        memory: "256Mi"
+    mon:
+      limits:
+        cpu: "500m"
+        memory: "1024Mi"
+      requests:
+        cpu: "250m"
+        memory: "256Mi"    
+    osd:
+      limits:
+        cpu: "500m"
+        memory: "1024Mi"
+      requests:
+        cpu: "250m"
+        memory: "256Mi"    
+EOF
+kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/ceph/cluster.yaml -f ceph-operator-overrides.yml
 kube_wait_for_pod_to_be_running rook-ceph-system rook-ceph-operator
 kube_wait_for_pod_to_be_running rook-ceph-system rook-ceph-agent
 kube_wait_for_pod_to_be_running rook-ceph-system rook-discover
 
-kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/cockroachdb/operator.yaml
+cat << EOF > cockroachdb-operator-overrides.yml
+spec:
+  template:
+    spec:
+      containers:
+        - name: rook-cockroachdb-operator
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+EOF
+kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/cockroachdb/operator.yaml -f cockroachdb-operator-overrides.yml
 kube_wait_for_pod_to_be_running rook-cockroachdb-system rook-cockroachdb-operator
 
-kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/minio/operator.yaml
+cat << EOF > minio-operator-overrides.yml
+spec:
+  template:
+    spec:
+      containers:
+        - name: rook-minio-operator
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "100Mi"
+EOF
+kubectl apply -f https://raw.githubusercontent.com/rook/rook/master/cluster/examples/kubernetes/minio/operator.yaml -f minio-operator-overrides.yml 
 kube_wait_for_pod_to_be_running rook-minio-system rook-minio-operator
+
