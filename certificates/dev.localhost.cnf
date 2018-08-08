@@ -1,0 +1,31 @@
+[ req ]
+default_bits       = 4096
+distinguished_name = req_distinguished_name
+req_extensions     = req_ext
+
+[ req_distinguished_name ]
+countryName                     = UK
+countryName_default             = UK
+stateOrProvinceName             = London
+stateOrProvinceName_default     = London
+localityName                    = London
+localityName_default            = London
+organizationName                = Talifun Ltd
+organizationName_default        = Talifun Ltd
+organizationalUnitName          = Web Services
+organizationalUnitName_default  = Web Services
+commonName                      = *.dev.localhost
+commonName_max                  = 64
+commonName_default              = *.dev.localhost
+emailAddress                    = taliesins@localhost
+emailAddress_default            = taliesins@localhost
+
+[ req_ext ]
+basicConstraints                = critical, CA:FALSE, pathlen:0
+subjectKeyIdentifier            = hash
+keyUsage                        = critical, digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment, keyAgreement 
+subjectAltName                  = @alt_names
+
+[alt_names]
+DNS.1                           = *.dev.localhost
+DNS.2                           = dev.localhost
