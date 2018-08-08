@@ -3,8 +3,20 @@ command_exists () {
     command -v $1 >/dev/null 2>&1;
 }
 
-kube_rbac_is_not_installed() {
+kube_is_rbac_not_installed() {
     [[ $(kubectl cluster-info dump --namespace kube-system | grep authorization-mode | wc -l) -eq 0 ]]
+}
+
+kube_is_admission_controller_not_installed() {
+    [[ $(kubectl describe pod --namespace kube-system $(kubectl get pods --namespace kube-system | grep api | cut -d ' ' -f 1) | grep admission-control | grep $1 | wc -l) -eq 0 ]]
+}
+
+kube_is_MutatingAdmissionWebhook_admission_controller_not_installed() {
+    kube_is_admission_controller_not_installed MutatingAdmissionWebhook
+}
+
+kube_is_ValidatingAdmissionWebhook_admission_controller_not_installed() {
+    kube_is_admission_controller_not_installed ValidatingAdmissionWebhook
 }
 
 if ! command_exists kubectl
@@ -19,9 +31,21 @@ then
     exit 
 fi
 
-if kube_rbac_is_not_installed
+if kube_is_rbac_not_installed
 then
     printf '%s\n' "RBAC is not installed"
+    exit 1
+fi
+
+if kube_is_MutatingAdmissionWebhook_admission_controller_not_installed
+then
+    printf '%s\n' "MutatingAdmissionWebhook admission controller is not installed"
+    exit 1
+fi
+
+if kube_is_ValidatingAdmissionWebhook_admission_controller_not_installed
+then
+    printf '%s\n' "ValidatingAdmissionWebhook admission controller is not installed"
     exit 1
 fi
 
