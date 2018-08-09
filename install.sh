@@ -123,15 +123,16 @@ accessLogs:
   enabled: true   
 ssl:
     enabled: true
-    enforced: true
+    enforced: false
     defaultCert: $cert
     defaultKey: $cert_key
 dashboard:
     enabled: true
-    domain: "traefik.dev.localhost"
+    entryPoint: "https"
+    domain: traefik.dev.localhost
 ping:
   enabled: true
-  entryPoints: "https"
+  entryPoint: "https"
 rbac:
     enabled: true
 cpuRequest: 100m

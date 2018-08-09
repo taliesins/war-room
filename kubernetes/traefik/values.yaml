@@ -184,6 +184,8 @@ acme:
     # existingClaim:
 dashboard:
   enabled: false
+  entryPoint: "http"
+  port: ""
   domain: traefik.example.com
   service:
     # annotations:
