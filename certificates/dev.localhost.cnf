@@ -1,24 +1,18 @@
 [ req ]
+prompt 			   = no
 default_bits       = 4096
 distinguished_name = req_distinguished_name
 req_extensions     = req_ext
 
 [ req_distinguished_name ]
-countryName                     = UK
-countryName_default             = UK
-stateOrProvinceName             = London
-stateOrProvinceName_default     = London
-localityName                    = London
-localityName_default            = London
-organizationName                = Talifun Ltd
-organizationName_default        = Talifun Ltd
-organizationalUnitName          = Web Services
-organizationalUnitName_default  = Web Services
-commonName                      = *.dev.localhost
-commonName_max                  = 64
-commonName_default              = *.dev.localhost
+C  = UK
+ST = London
+L  = London
+O = Talifun Ltd
+OU = Web Services
+CN = *.dev.localhost
 emailAddress                    = taliesins@localhost
-emailAddress_default            = taliesins@localhost
+
 
 [ req_ext ]
 basicConstraints                = critical, CA:FALSE, pathlen:0
