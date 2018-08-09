@@ -112,12 +112,15 @@ cert=$(cat certificates/dev.localhost.crt | base64 | tr -d '\n')
 cert_key=$(cat certificates/dev.localhost.key.nopassword | base64 | tr -d '\n')
 
 cat << EOF > traefik-overrides.yml
-imageTag: 1.6.5   
+image: taliesins/traefik
+imageTag: 52-jwtvalidation   
 serviceType: NodePort
 service:
   nodePorts:
     http: 31380
-    https: 31390   
+    https: 31390
+accessLogs:
+  enabled:true   
 ssl:
     enabled: true
     enforced: true
@@ -126,6 +129,9 @@ ssl:
 dashboard:
     enabled: true
     domain: "traefik.dev.localhost"
+ping:
+  enabled: true
+  entryPoints: "https"
 rbac:
     enabled: true
 cpuRequest: 100m
@@ -137,7 +143,7 @@ EOF
 #Add tracing to Treafik
 #Add metrics to Traefik
 
-helm install stable/traefik --name traefik-ingress --namespace kube-system -f traefik-overrides.yml
+helm install kubernetes/traefik --name traefik-ingress --namespace kube-system -f traefik-overrides.yml
 kube_wait_for_pod_to_be_running kube-system traefik-ingress
 
 http_endpoint=`kube_get_service_http kube-system traefik-ingress-traefik`
