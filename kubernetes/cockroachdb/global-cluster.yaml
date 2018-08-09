@@ -1,0 +1,18 @@
+apiVersion: cockroachdb.rook.io/v1alpha1
+kind: Cluster
+metadata:
+  name: cockroachdb-global-cluster
+  namespace: rook-cockroachdb-system
+spec:
+  scope:
+    nodeCount: 1
+  network:
+    ports:
+    - name: http
+      port: 8080
+    - name: grpc
+      port: 26257
+  secure: false
+  volumeSize: 1Gi
+  cachePercent: 25
+  maxSQLMemoryPercent: 25

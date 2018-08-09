@@ -322,6 +322,30 @@ resources:
     memory: 256Mi
     cpu: 200m
 EOF
-
 helm install kubernetes/strimzi-kafka-operator --name kafka-operator --namespace kafka-system -f kafka-operator-overrides.yml
 kube_wait_for_pod_to_be_running kafka-system strimzi-cluster-operator
+
+###########################################################################################################################################################################
+
+kubectl apply -f kubernetes/cockroachdb/global-cluster.yaml
+kube_wait_for_pod_to_be_running rook-cockroachdb-system cockroachdb-global-cluster-0
+
+
+kubectl apply -f kubernetes/kafka/global-cluster.yaml
+kube_wait_for_pod_to_be_running kafka-system cockroachdb-global-cluster-kafka-0
+
+kubectl apply -f kubernetes/kafka/region-a-cluster.yaml
+kube_wait_for_pod_to_be_running kafka-system kafka-region-a-cluster-kafka-0
+kube_wait_for_pod_to_be_running kafka-system kafka-region-a-cluster-zookeeper-0
+
+kubectl apply -f kubernetes/kafka/region-b-cluster.yaml
+kube_wait_for_pod_to_be_running kafka-system kafka-region-b-cluster-kafka-0
+kube_wait_for_pod_to_be_running kafka-system kafka-region-b-cluster-zookeeper-0
+
+kubectl apply -f kubernetes/kafka/region-c-cluster.yaml
+kube_wait_for_pod_to_be_running kafka-system kafka-region-c-cluster-kafka-0
+kube_wait_for_pod_to_be_running kafka-system kafka-region-c-cluster-zookeeper-0
+
+cat << EOF > kafka-connect-overrides.yml
+EOF
+kubectl apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/master/examples/kafka-connect/kafka-connect.yaml -f kafka-connect-overrides.yml

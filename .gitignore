@@ -76,3 +76,4 @@ Temporary Items
 /prometheus-operator-overrides.yml
 /rook-overrides.yml
 /kafka-operator-overrides.yml
+/kafka-cluster-global-overrides.yml
