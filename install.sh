@@ -1,5 +1,17 @@
+
+#!/usr/bin/env bash
+
+
 #Pre requisites
-command_exists () {
+build_certs() {
+  command_exists openssl
+  source certificates/gencert.sh
+  pushd certificates
+  gen_certs
+  popd
+}
+
+command_exists() {
     command -v $1 >/dev/null 2>&1;
 }
 
@@ -91,6 +103,8 @@ then
     exit 1
 fi
 
+build_certs
+
 if [ ! -f certificates/dev.localhost.crt ]; then
     echo "certificates/dev.localhost.crt file not found!"
     exit 1
@@ -100,6 +114,8 @@ if [ ! -f certificates/dev.localhost.key.nopassword ]; then
     echo "certificates/dev.localhost.key.nopassword file not found!"
     exit 1
 fi
+
+
 
 helm reset
 kubectl create -f kubernetes/helm/helm-service-account.yaml
