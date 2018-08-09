@@ -113,14 +113,14 @@ cert_key=$(cat certificates/dev.localhost.key.nopassword | base64 | tr -d '\n')
 
 cat << EOF > traefik-overrides.yml
 image: taliesins/traefik
-imageTag: 52-jwtvalidation   
+imageTag: 54-jwtvalidation   
 serviceType: NodePort
 service:
   nodePorts:
     http: 31380
     https: 31390
 accessLogs:
-  enabled:true   
+  enabled: true   
 ssl:
     enabled: true
     enforced: true

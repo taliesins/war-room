@@ -36,7 +36,9 @@ data:
         [entryPoints.http.proxyProtocol]
         {{ template "traefik.trustedips" . }}
       {{- end }}
-      compress = {{ .Values.gzip.enabled }}
+      {{- if .Values.gzip.enabled }}
+        [entryPoints.http.compress]
+      {{- end }}
         {{- if .Values.ssl.enforced }}
         [entryPoints.http.redirect]
           regex = "^http://(.*)"
@@ -56,7 +58,9 @@ data:
         [entryPoints.https.proxyProtocol]
         {{ template "traefik.trustedips" . }}
       {{- end }}
-      compress = {{ .Values.gzip.enabled }}
+      {{- if .Values.gzip.enabled }}
+        [entryPoints.https.compress]
+      {{- end }}
         [entryPoints.https.tls]
           {{- if .Values.ssl.tlsMinVersion }}
           minVersion = "{{ .Values.ssl.tlsMinVersion }}"
@@ -70,7 +74,9 @@ data:
       {{ template "traefik.whiteListSourceRange" . }}
       {{- end }}
       address = ":8880"
-      compress = {{ .Values.gzip.enabled }}
+      {{- if .Values.gzip.enabled }}
+        [entryPoints.httpn.compress]
+      {{- end }}
       {{- end }}
     [kubernetes]
     {{- if .Values.kubernetes}}
