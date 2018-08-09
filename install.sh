@@ -1,5 +1,17 @@
+
+#!/usr/bin/env bash
+
+
 #Pre requisites
-command_exists () {
+build_certs() {
+  command_exists openssl
+  source certificates/gencert.sh
+  pushd certificates
+  gen_certs
+  popd
+}
+
+command_exists() {
     command -v $1 >/dev/null 2>&1;
 }
 
@@ -91,6 +103,8 @@ then
     exit 1
 fi
 
+build_certs
+
 if [ ! -f certificates/dev.localhost.crt ]; then
     echo "certificates/dev.localhost.crt file not found!"
     exit 1
@@ -100,6 +114,8 @@ if [ ! -f certificates/dev.localhost.key.nopassword ]; then
     echo "certificates/dev.localhost.key.nopassword file not found!"
     exit 1
 fi
+
+
 
 helm reset
 kubectl create -f kubernetes/helm/helm-service-account.yaml
@@ -112,27 +128,42 @@ cert=$(cat certificates/dev.localhost.crt | base64 | tr -d '\n')
 cert_key=$(cat certificates/dev.localhost.key.nopassword | base64 | tr -d '\n')
 
 cat << EOF > traefik-overrides.yml
+<<<<<<< HEAD
 image: taliesins/traefik
 imageTag: 56-jwtvalidation   
+=======
+imageTag: 1.6.5   
+>>>>>>> 2b86dc9f75f47ea242e1b67ff4ca105505a13666
 serviceType: NodePort
 service:
   nodePorts:
     http: 31380
+<<<<<<< HEAD
     https: 31390
 accessLogs:
   enabled: true   
 ssl:
     enabled: true
     enforced: false
+=======
+    https: 31390   
+ssl:
+    enabled: true
+    enforced: true
+>>>>>>> 2b86dc9f75f47ea242e1b67ff4ca105505a13666
     defaultCert: $cert
     defaultKey: $cert_key
 dashboard:
     enabled: true
+<<<<<<< HEAD
     entryPoint: "https"
     domain: traefik.dev.localhost
 ping:
   enabled: true
   entryPoint: "https"
+=======
+    domain: "traefik.dev.localhost"
+>>>>>>> 2b86dc9f75f47ea242e1b67ff4ca105505a13666
 rbac:
     enabled: true
 cpuRequest: 100m
@@ -144,7 +175,11 @@ EOF
 #Add tracing to Treafik
 #Add metrics to Traefik
 
+<<<<<<< HEAD
 helm install kubernetes/traefik --name traefik-ingress --namespace kube-system -f traefik-overrides.yml
+=======
+helm install stable/traefik --name traefik-ingress --namespace kube-system -f traefik-overrides.yml
+>>>>>>> 2b86dc9f75f47ea242e1b67ff4ca105505a13666
 kube_wait_for_pod_to_be_running kube-system traefik-ingress
 
 http_endpoint=`kube_get_service_http kube-system traefik-ingress-traefik`
