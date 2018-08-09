@@ -90,12 +90,19 @@ spec:
                 - key: app
                   operator: In
                   values:
-                  - cockroachdb
+                  - cockroachdb-region-c
               topologyKey: kubernetes.io/hostname
       containers:
       - name: cockroachdb-region-c
         image: cockroachdb/cockroach:v2.0.4
         imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 200m
+            memory: 256Mi 
+          requests:
+            cpu: 100m
+            memory: 128Mi        
         ports:
         - containerPort: 26257
           name: grpc

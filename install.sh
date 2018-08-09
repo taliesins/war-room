@@ -339,11 +339,11 @@ kube_wait_for_pod_to_be_running rook-minio-system rook-minio-operator
 cat << EOF > kafka-operator-overrides.yml
 resources:
   limits:
-    memory: 512Mi
     cpu: 500m
+    memory: 512Mi
   requests:
-    memory: 256Mi
     cpu: 200m
+    memory: 256Mi
 EOF
 helm install kubernetes/strimzi-kafka-operator --name kafka-operator --namespace kafka-system -f kafka-operator-overrides.yml
 kube_wait_for_pod_to_be_running kafka-system strimzi-cluster-operator
