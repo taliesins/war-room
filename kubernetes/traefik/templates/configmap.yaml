@@ -42,6 +42,10 @@ data:
           regex = "^http://(.*)"
           replacement = "https://$1"
         {{- end }}
+      {{- if (not (empty .Values.ping.port)) }}
+        [entryPoints.ping]
+          address = ":{{ .Values.ping.port }}"
+      {{- end }}
       {{- if .Values.ssl.enabled }}
       [entryPoints.https]
       {{- if .Values.whiteListSourceRange }}
@@ -210,5 +214,17 @@ data:
         {{- if ne (.Values.tracing.zipkin.id128bit | quote) "" }}
         id128bit = {{ .Values.tracing.zipkin.id128bit }}
         {{- end }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.ping.enabled }}
+    [ping]
+      {{- if (empty .Values.ping.port) }}
+        {{- if (empty .Values.ping.entryPoint) }}
+      entryPoint = "http"
+        {{- else }}
+      entryPoint = {{ .Values.ping.entryPoint | quote }}
+        {{- end }}
+      {{- else }}
+      entryPoint = "ping"
       {{- end }}
     {{- end }}
