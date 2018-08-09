@@ -128,42 +128,27 @@ cert=$(cat certificates/dev.localhost.crt | base64 | tr -d '\n')
 cert_key=$(cat certificates/dev.localhost.key.nopassword | base64 | tr -d '\n')
 
 cat << EOF > traefik-overrides.yml
-<<<<<<< HEAD
 image: taliesins/traefik
 imageTag: 56-jwtvalidation   
-=======
-imageTag: 1.6.5   
->>>>>>> 2b86dc9f75f47ea242e1b67ff4ca105505a13666
 serviceType: NodePort
 service:
   nodePorts:
     http: 31380
-<<<<<<< HEAD
     https: 31390
 accessLogs:
   enabled: true   
 ssl:
     enabled: true
     enforced: false
-=======
-    https: 31390   
-ssl:
-    enabled: true
-    enforced: true
->>>>>>> 2b86dc9f75f47ea242e1b67ff4ca105505a13666
     defaultCert: $cert
     defaultKey: $cert_key
 dashboard:
     enabled: true
-<<<<<<< HEAD
     entryPoint: "https"
     domain: traefik.dev.localhost
 ping:
   enabled: true
   entryPoint: "https"
-=======
-    domain: "traefik.dev.localhost"
->>>>>>> 2b86dc9f75f47ea242e1b67ff4ca105505a13666
 rbac:
     enabled: true
 cpuRequest: 100m
@@ -175,11 +160,7 @@ EOF
 #Add tracing to Treafik
 #Add metrics to Traefik
 
-<<<<<<< HEAD
 helm install kubernetes/traefik --name traefik-ingress --namespace kube-system -f traefik-overrides.yml
-=======
-helm install stable/traefik --name traefik-ingress --namespace kube-system -f traefik-overrides.yml
->>>>>>> 2b86dc9f75f47ea242e1b67ff4ca105505a13666
 kube_wait_for_pod_to_be_running kube-system traefik-ingress
 
 http_endpoint=`kube_get_service_http kube-system traefik-ingress-traefik`
@@ -370,9 +351,17 @@ kube_wait_for_pod_to_be_running kafka-system strimzi-cluster-operator
 ###########################################################################################################################################################################
 
 kubectl apply -f kubernetes/cockroachdb/global-cluster.yaml
-kube_wait_for_pod_to_be_running rook-cockroachdb-system cockroachdb-global-cluster-0
+kube_wait_for_pod_to_be_running default cockroachdb-global-0
 
+kubectl apply -f kubernetes/cockroachdb/region-a-cluster.yaml
+kube_wait_for_pod_to_be_running default cockroachdb-region-a-0
 
+kubectl apply -f kubernetes/cockroachdb/region-b-cluster.yaml
+kube_wait_for_pod_to_be_running default cockroachdb-region-b-0
+
+kubectl apply -f kubernetes/cockroachdb/region-c-cluster.yaml
+kube_wait_for_pod_to_be_running default cockroachdb-region-c-0
+#
 kubectl apply -f kubernetes/kafka/global-cluster.yaml
 kube_wait_for_pod_to_be_running kafka-system cockroachdb-global-cluster-kafka-0
 
@@ -387,7 +376,7 @@ kube_wait_for_pod_to_be_running kafka-system kafka-region-b-cluster-zookeeper-0
 kubectl apply -f kubernetes/kafka/region-c-cluster.yaml
 kube_wait_for_pod_to_be_running kafka-system kafka-region-c-cluster-kafka-0
 kube_wait_for_pod_to_be_running kafka-system kafka-region-c-cluster-zookeeper-0
-
+#
 cat << EOF > kafka-connect-overrides.yml
 EOF
 kubectl apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/master/examples/kafka-connect/kafka-connect.yaml -f kafka-connect-overrides.yml
