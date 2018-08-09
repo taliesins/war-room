@@ -352,15 +352,20 @@ kube_wait_for_pod_to_be_running kafka-system strimzi-cluster-operator
 
 kubectl apply -f kubernetes/cockroachdb/global-cluster.yaml
 kube_wait_for_pod_to_be_running default cockroachdb-global-0
+#kubectl run cockroachdb -it --image=cockroachdb/cockroach --rm --restart=Never -- sql --insecure --host=cockroachdb-global-public
 
 kubectl apply -f kubernetes/cockroachdb/region-a-cluster.yaml
 kube_wait_for_pod_to_be_running default cockroachdb-region-a-0
+#kubectl run cockroachdb -it --image=cockroachdb/cockroach --rm --restart=Never -- sql --insecure --host=cockroachdb-region-a-public
 
 kubectl apply -f kubernetes/cockroachdb/region-b-cluster.yaml
 kube_wait_for_pod_to_be_running default cockroachdb-region-b-0
+#kubectl run cockroachdb -it --image=cockroachdb/cockroach --rm --restart=Never -- sql --insecure --host=cockroachdb-region-b-public
 
 kubectl apply -f kubernetes/cockroachdb/region-c-cluster.yaml
 kube_wait_for_pod_to_be_running default cockroachdb-region-c-0
+#kubectl run cockroachdb -it --image=cockroachdb/cockroach --rm --restart=Never -- sql --insecure --host=cockroachdb-region-c-public
+
 #
 kubectl apply -f kubernetes/kafka/global-cluster.yaml
 kube_wait_for_pod_to_be_running kafka-system cockroachdb-global-cluster-kafka-0
