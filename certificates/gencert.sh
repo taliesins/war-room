@@ -21,7 +21,7 @@ gen_server_cert() {
 }
 
 gen_certs() {
-	if [ ! -f certificates/ca.crt ]; then
+	if [ ! -f ca.crt ]; then
     	echo "Certificate authority not found. Generating ca.crt ..."
 		gen_ca_cert
 	else
@@ -29,7 +29,7 @@ gen_certs() {
     
 	fi
 
-	if [ ! -f certificates/dev.localhost.pfx ]; then
+	if [ ! -f dev.localhost.pfx ]; then
     	echo "Server cert not found. Generating"
 		gen_server_cert
 	else
