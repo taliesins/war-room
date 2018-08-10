@@ -144,6 +144,7 @@ if [ ! -f certificates/dev.localhost.key.nopassword ]; then
 fi
 
 
+
 helm reset
 kubectl create -f kubernetes/helm/helm-service-account.yaml
 
@@ -279,7 +280,16 @@ kube_wait_for_pod_to_be_running prometheus-system kube-prometheus-exporter-node
 kube_wait_for_pod_to_be_running prometheus-system alertmanager-kube-prometheus
 kube_wait_for_pod_to_be_running prometheus-system kube-prometheus-grafana
 
-helm install kubernetes/strimzi-kafka-operator --name kafka-operator --namespace kafka-system 
+cat << EOF > kafka-operator-overrides.yml
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 200m
+    memory: 256Mi
+EOF
+helm install kubernetes/strimzi-kafka-operator --name kafka-operator --namespace kafka-system -f kafka-operator-overrides.yml
 kube_wait_for_pod_to_be_running kafka-system strimzi-cluster-operator
 
 ###########################################################################################################################################################################
