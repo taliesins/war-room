@@ -413,3 +413,25 @@ kube_wait_for_pod_to_be_running kafka-system kafka-region-c-cluster-zookeeper-0
 cat << EOF > kafka-connect-overrides.yml
 EOF
 kubectl apply -f https://raw.githubusercontent.com/strimzi/strimzi-kafka-operator/master/examples/kafka-connect/kafka-connect.yaml -f kafka-connect-overrides.yml
+
+
+cat << EOF > frontend-overrides.yml
+image:
+  repository: taliesins/node-docker-good-defaults
+  tag: latest
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  hosts:
+      - frontend.dev.localhost
+resources:
+  limits:
+    cpu: 250m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi
+EOF
+helm install containers/frontend/helm --name frontend --namespace default -f frontend-overrides.yml
+kube_wait_for_pod_to_be_running kafka-system strimzi-cluster-operator

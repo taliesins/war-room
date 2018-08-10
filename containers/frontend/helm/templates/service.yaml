@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "node-docker-good-defaults.fullname" . }}
+  labels:
+    app: {{ template "node-docker-good-defaults.name" . }}
+    chart: {{ template "node-docker-good-defaults.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "node-docker-good-defaults.name" . }}
+    release: {{ .Release.Name }}

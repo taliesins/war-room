@@ -1,0 +1,16 @@
+image:
+  repository: taliesins/node-docker-good-defaults
+  tag: latest
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: traefik
+  hosts:
+      - frontend.dev.localhost
+resources:
+  limits:
+    cpu: 250m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi
