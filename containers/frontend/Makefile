@@ -1,7 +1,8 @@
 NAME ?= node-docker-good-defaults
+NAMESPACE ?= taliesins
 
 build:
-	docker build -t $(NAME) .
+	docker build -t $(NAMESPACE)/$(NAME) .
 
 start: 
 	docker-compose up -d
