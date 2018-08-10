@@ -72,6 +72,10 @@ kube_get_service_https(){
     echo "$service_host:$service_port"
 }
 
+is_dns_not_configured_for() {
+  resolvedIP=$(nslookup "$1" | awk -F':' '/^Address: / { matched = 1 } matched { print $2}' | xargs)
+  [[ -z "$resolvedIP" ]]
+}
 
 if ! command_exists kubectl
 then
@@ -103,6 +107,30 @@ then
     exit 1
 fi
 
+if is_dns_not_configured_for traefik.dev.localhost
+then
+    echo "Dns for traefik.dev.localhost is not configured"
+    exit 1
+fi
+
+if is_dns_not_configured_for k8s.dev.localhost
+then
+    echo "Dns for k8s.dev.localhost is not configured"
+    exit 1
+fi
+
+if is_dns_not_configured_for alertmanager.dev.localhost
+then
+    echo "Dns for alertmanager.dev.localhost is not configured"
+    exit 1
+fi
+
+if is_dns_not_configured_for prometheus.dev.localhost
+then
+    echo "Dns for prometheus.dev.localhost is not configured"
+    exit 1
+fi
+
 build_certs
 
 if [ ! -f certificates/dev.localhost.crt ]; then
@@ -114,7 +142,6 @@ if [ ! -f certificates/dev.localhost.key.nopassword ]; then
     echo "certificates/dev.localhost.key.nopassword file not found!"
     exit 1
 fi
-
 
 
 helm reset
@@ -369,6 +396,7 @@ kube_wait_for_pod_to_be_running default cockroachdb-region-c-0
 #
 kubectl apply -f kubernetes/kafka/global-cluster.yaml
 kube_wait_for_pod_to_be_running kafka-system cockroachdb-global-cluster-kafka-0
+#kubectl run kafka -it --image=confluentinc/cp-kafka --rm 
 
 kubectl apply -f kubernetes/kafka/region-a-cluster.yaml
 kube_wait_for_pod_to_be_running kafka-system kafka-region-a-cluster-kafka-0
