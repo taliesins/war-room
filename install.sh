@@ -131,6 +131,12 @@ then
     exit 1
 fi
 
+if is_dns_not_configured_for frontend.dev.localhost
+then
+    echo "Dns for frontend.dev.localhost is not configured"
+    exit 1
+fi
+
 build_certs
 
 if [ ! -f certificates/dev.localhost.crt ]; then
