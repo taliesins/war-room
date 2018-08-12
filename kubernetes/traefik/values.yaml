@@ -184,16 +184,16 @@ acme:
     # existingClaim:
 dashboard:
   enabled: false
-  entryPoint: "http"
-  port: ""
+  port: 81
+  nodePort: 
   domain: traefik.example.com
-  service:
-    # annotations:
-    #   key: value
   ingress:
     # annotations:
     #   key: value
     # labels:
+    #   key: value
+  service:
+    # annotations:
     #   key: value
   auth:
     # basic:
@@ -201,9 +201,23 @@ dashboard:
   statistics:
     ## Number of recent errors to show in the ‘Health’ tab
     # recentErrors:
+ping:
+  enabled: false
+  port: 82
+  nodePort: 
+  domain: ping.example.com
+  ingress:
+    # annotations:
+    #   key: value
+    # labels:
+    #   key: value
+  service:
+    # annotations:
+    #   key: value
 service:
   # annotations:
   #   key: value
+  
   # labels:
   #   key: value
   ## Further config for service of type NodePort
@@ -274,7 +288,3 @@ tracing:
   #   debug: false
   #   sameSpan: false
   #   id128bit: true
-ping:
-  enabled: false
-  entryPoint: "http"
-  port: ""

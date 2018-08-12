@@ -1,16 +1,16 @@
-{{- if .Values.dashboard.enabled }}
+{{- if .Values.ping.enabled }}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "traefik.fullname" . }}-dashboard
+  name: {{ template "traefik.fullname" . }}-ping
   labels:
     app: {{ template "traefik.name" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
   annotations:
-  {{- if .Values.dashboard.service }}
-  {{- range $key, $value := .Values.dashboard.service.annotations }}
+  {{- if .Values.ping.service }}
+  {{- range $key, $value := .Values.ping.service.annotations }}
     {{ $key }}: {{ $value | quote }}
   {{- end }}
   {{- end }}
@@ -20,12 +20,12 @@ spec:
     release: {{ .Release.Name }}
   ports:
   - port: 80
-    {{- if (empty .Values.dashboard.port) }}
-    targetPort: 81
+    {{- if (empty .Values.ping.port) }}
+    targetPort: 82
     {{- else }}
-    targetPort: {{ .Values.dashboard.port }}
+    targetPort: {{ .Values.ping.port }}
     {{- end }}
-    {{- if (not (empty .Values.dashboard.nodePort))}}
-    nodePort: {{ .Values.dashboard.nodePort }}
+    {{- if (not (empty .Values.ping.nodePort))}}
+    nodePort: {{ .Values.ping.nodePort }}
     {{- end }}
 {{- end }}

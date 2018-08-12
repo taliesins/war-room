@@ -172,17 +172,20 @@ service:
 accessLogs:
   enabled: true   
 ssl:
-    enabled: true
-    enforced: false
-    defaultCert: $cert
-    defaultKey: $cert_key
+  enabled: true
+  enforced: false
+  defaultCert: $cert
+  defaultKey: $cert_key
 dashboard:
-    enabled: true
-    entryPoint: "https"
-    domain: traefik.dev.localhost
+  enabled: true
+  domain: traefik.dev.localhost
+  annotations:
+    kubernetes.io/ingress.class: traefik
 ping:
   enabled: true
-  entryPoint: "https"
+  domain: ping.dev.localhost
+  annotations:
+    kubernetes.io/ingress.class: traefik
 rbac:
     enabled: true
 cpuRequest: 100m

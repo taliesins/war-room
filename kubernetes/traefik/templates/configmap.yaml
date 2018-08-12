@@ -39,18 +39,26 @@ data:
       {{- if .Values.gzip.enabled }}
         [entryPoints.http.compress]
       {{- end }}
-        {{- if .Values.ssl.enforced }}
+        {{- if .Values.ssl.enforced }}  
         [entryPoints.http.redirect]
           regex = "^http://(.*)"
           replacement = "https://$1"
         {{- end }}
-      {{- if (not (empty .Values.ping.port)) }}
+      {{- if .Values.ping.enabled }}
         [entryPoints.ping]
+        {{- if (empty .Values.ping.port) }}
+          address = ":82"
+        {{- else }}
           address = ":{{ .Values.ping.port }}"
+        {{- end }}
       {{- end }}
-      {{- if (not (empty .Values.dashboard.port)) }}
-      [entryPoints.api]
-        address = ":{{ .Values.dashboard.port }}"
+      {{- if .Values.dashboard.enabled }}
+        [entryPoints.api]
+        {{- if (empty .Values.dashboard.port) }}
+          address = ":81"
+        {{- else }}
+          address = ":{{ .Values.dashboard.port }}"
+        {{- end }}
       {{- end }}
       {{- if .Values.ssl.enabled }}
       [entryPoints.https]
@@ -83,10 +91,10 @@ data:
       {{- end }}
       {{- end }}
     [kubernetes]
-    {{- if .Values.kubernetes}}
+    {{- if .Values.kubernetes }}
       {{- if .Values.kubernetes.endpoint }}
     endpoint = {{ .Values.kubernetes.endpoint | quote }}
-      {{- end}}
+      {{- end }}
       {{- if .Values.kubernetes.namespaces }}
     namespaces = [
         {{- range $idx, $element := .Values.kubernetes.namespaces }}
@@ -94,33 +102,33 @@ data:
             {{- $element | quote }}
         {{- end -}}
         ]
-      {{- end}}
+      {{- end }}
       {{- if .Values.kubernetes.labelSelector }}
     labelselector = {{ .Values.kubernetes.labelSelector | quote }}
-      {{- end}}
+      {{- end }}
       {{- if .Values.kubernetes.ingressClass }}
     ingressClass = {{ .Values.kubernetes.ingressClass | quote }}
-      {{- end}}
-    {{- end}}
+      {{- end }}
+    {{- end }}
     {{- if .Values.accessLogs.enabled }}
     [accessLog]
     {{- if .Values.accessLogs.filePath }}
     filePath = "{{ .Values.accessLogs.filePath }}"
-    {{- end}}
+    {{- end }}
       format = "{{ .Values.accessLogs.format }}"
     [accessLog.fields]
       defaultMode = {{ .Values.accessLogs.fields.defaultMode | quote }}
     [accessLog.fields.names]
     {{- range $field, $action := .Values.accessLogs.fields.names }}
       {{ printf "\"%s\" = \"%s\"" $field $action }}
-    {{- end}}
+    {{- end }}
     [accessLog.fields.headers]
       defaultMode = {{ .Values.accessLogs.fields.headers.defaultMode | quote }}
     [accessLog.fields.headers.names]
     {{- range $header, $action := .Values.accessLogs.fields.headers.names }}
       {{ printf "\"%s\" = \"%s\"" $header $action }}
-    {{- end}}
-    {{- end}}
+    {{- end }}
+    {{- end }}
     {{- if .Values.acme.enabled }}
     [acme]
     email = "{{ .Values.acme.email }}"
@@ -146,17 +154,11 @@ data:
     {{- end }}
     {{- if or .Values.dashboard.enabled .Values.metrics.prometheus.enabled .Values.metrics.statsd.enabled .Values.metrics.datadog.enabled }}
     [api]
-      {{- if (empty .Values.dashboard.port) }}
-        {{- if (empty .Values.dashboard.entryPoint) }}
-      entryPoint = "traefik"
-        {{- else }}
-      entryPoint = {{ .Values.dashboard.entryPoint | quote }}
-        {{- end }}
-      {{- else }}
       entryPoint = "api"
-      {{- end }}
       {{- if .Values.dashboard.enabled }}
       dashboard = true
+      {{- else }}
+      dashboard = false
       {{- end }}
     {{- end }}
     {{- if .Values.dashboard.enabled }}
@@ -164,14 +166,14 @@ data:
       {{- if .Values.dashboard.auth.basic }}
       [api.auth.basic]
         users = [{{ range $key, $value := .Values.dashboard.auth.basic }}"{{ $key }}:{{ $value }}",{{ end }}]
-      {{- end}}
-      {{- end}}
+      {{- end }}
+      {{- end }}
       {{- if .Values.dashboard.statistics }}
       {{- if .Values.dashboard.statistics.recentErrors }}
       [api.statistics]
         RecentErrors = {{ .Values.dashboard.statistics.recentErrors }}
-      {{- end}}
-      {{- end}}
+      {{- end }}
+      {{- end }}
     {{- end }}
     {{- if .Values.metrics.prometheus.enabled }}
     [api.metrics.prometheus]
@@ -188,24 +190,24 @@ data:
     [api.metrics.datadog]
       {{- if .Values.metrics.datadog.address }}
       address = {{ .Values.metrics.datadog.address | quote }}
-      {{- end}}
+      {{- end }}
       {{- if .Values.metrics.datadog.pushinterval }}
       pushinterval = {{ .Values.metrics.datadog.pushinterval | quote }}
-      {{- end}}
+      {{- end }}
     {{- end }}
     {{- if .Values.metrics.statsd.enabled }}
     [api.metrics.statsd]
       {{- if .Values.metrics.statsd.address }}
       address = {{ .Values.metrics.statsd.address | quote }}
-      {{- end}}
+      {{- end }}
       {{- if .Values.metrics.statsd.pushinterval }}
       pushinterval = {{ .Values.metrics.statsd.pushinterval | quote }}
-      {{- end}}
+      {{- end }}
     {{- end }}
     {{- if .Values.tracing.enabled }}
     [tracing]
       backend = {{ .Values.tracing.backend | quote }}
-      serviceName = {{ .Values.tracing.serviceName | quote}}
+      serviceName = {{ .Values.tracing.serviceName | quote }}
       {{- if eq .Values.tracing.backend "jaeger" }}
       [tracing.jaeger]
         {{- if .Values.tracing.jaeger.localAgentHostPort }}
@@ -239,13 +241,5 @@ data:
     {{- end }}
     {{- if .Values.ping.enabled }}
     [ping]
-      {{- if (empty .Values.ping.port) }}
-        {{- if (empty .Values.ping.entryPoint) }}
-      entryPoint = "traefik"
-        {{- else }}
-      entryPoint = {{ .Values.ping.entryPoint | quote }}
-        {{- end }}
-      {{- else }}
       entryPoint = "ping"
-      {{- end }}
     {{- end }}
