@@ -1,22 +1,29 @@
-# Bootstrap a simulated multi-region Kafka deployment backed by CockroachDB
+# War Room
 
-## Prereqs
+Bootstrap a simulated multi-region Kafka and CockroachDB deployment.
 
-- Local K8s
+## Hardware
+
 - 16G RAM [min recommended]
 - 4 cores [min recommended]
 
-## Installation
+# OS specific configuration
 
-```bash
-sh install.sh
+- Local K8s installtion 
+
+## Mac
+
+### Certificate Pre-requisites
+Use the built in openssl.
+
+### DNS Pre-requisites
+/etc/hosts
+```
 ```
 
-## Mac DNS Helper
+Another options would be to use dnsmasq
 
-To use DNS locally we need some foo to resolve *.dev.localhost names correctly. On a Mac the easiest way is with DNSmasq.
-
-### Install DNSmasq
+#### Install DNSmasq
 
 ```bash
 # Update your homebrew installation
@@ -68,4 +75,42 @@ Test it works correctly:
 
 ;; ANSWER SECTION:
 blah.dev.localhost.	0	IN	A	127.0.0.1
+```
+
+### Build Pre-requisites
+https://github.com/nodejs/node-gyp#on-macos
+
+
+## Windows
+
+### Certificate Pre-requisites
+
+Download and install OpenSSL and put it on the path.
+
+### DNS Pre-requisites
+
+A number of dns entries need to be created in order to facilitate Traefik using host headers for routing.
+
+C:\Windows\System32\drivers\etc\hosts
+```
+10.0.75.1 docker.dev.localhost nexus.dev.localhost
+127.0.0.1 localhost dev.localhost traefik.dev.localhost k8s.dev.localhost alertmanager.dev.localhost prometheus.dev.localhost frontend.dev.localhost
+```
+
+Another option is to use something like Acrylic DNS Proxy
+AcrylicHosts.txt:
+```
+10.0.75.1 docker.dev.localhost nexus.dev.localhost docker.dev.localhost.* nexus.dev.localhost.*
+127.0.0.1 localhost *.localhost *.localhost.*
+```
+
+`10.0.75.1` is the default ip you get with Docker For Windows. This will allow containers to make use of servers outside of Kubernetes.
+
+### Build Pre-requisites
+https://github.com/nodejs/node-gyp#on-windows
+
+## Installation
+
+```bash
+sh install.sh
 ```
