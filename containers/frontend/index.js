@@ -101,9 +101,21 @@ producer.on('error', function (err) {
   console.log('error', err);
 });
 
+producer.createTopics([topic], false, function (err, data) {
+  if (err){
+    console.error(err)
+  } else {
+    console.log("topic created", data);
+  }
+});
+
 consumer.on('message', function (message) {
   consumerMessagesProcessed+=message;
   console.log("received message", message);
+});
+
+consumer.on('error', function (err) {
+  console.log('error', err);
 });
 
 // Ensure we subscribed to message event before we start consuming from topic
