@@ -27,11 +27,20 @@ const PORT = process.env.PORT || 8080;
 // Kafka
 var kafka = require('kafka-node');
 var Producer = kafka.Producer;
+var Consumer = kafka.Consumer;
 var KeyedMessage = kafka.KeyedMessage;
 var Client = kafka.Client;
 var client = new Client(config.globalKafkaConnectionString);
 var topic = config.topic;
 var producer = new Producer(client, config.globalKafkaProducerSettings);
+
+var consumer = new Consumer(
+  client,
+  [],
+  {fromOffset: true}
+);
+
+var consumerMessagesProcessed = [];
 
 // App
 var app = express();
@@ -73,6 +82,10 @@ app.get('/produce', async function (req, res) {
   });
 });
 
+app.get('/consumed', function (req, res) {
+  res.send(consumerMessagesProcessed);
+});
+
 app.get('/hash/:id', function (req, res) {
   var hmac = crypto.createHmac('sha256', config.hashSalt+config.hashSecret);
   var hash = hmac.update(req.params.id);
@@ -87,6 +100,16 @@ producer.on('ready', function () {
 producer.on('error', function (err) {
   console.log('error', err);
 });
+
+consumer.on('message', function (message) {
+  consumerMessagesProcessed+=message;
+  console.log("received message", message);
+});
+
+// Ensure we subscribed to message event before we start consuming from topic
+consumer.addTopics([
+  { topic: topic, partition: 0, offset: 0}
+], () => console.log("Consumer is subscribed to topic"));
 
 var server = app.listen(PORT, function () {
   console.log('Webserver is ready');
