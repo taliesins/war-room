@@ -1,0 +1,11 @@
+{
+    "globalKafka": "kafka-global-cluster-zookeeper-client:2181",
+    "globalKafkaProducerSettings" : {
+        "requireAcks": 1,
+        "ackTimeoutMs": 100,
+        "partitionerType": 0
+    },
+    "topic" : "topic1",
+    "hashSalt": "",
+    "hashSecret": "password"
+}
