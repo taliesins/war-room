@@ -1,4 +1,5 @@
 'use strict';
+
 var config = require('config-node')();
 
 // simple node web server that displays hello world
@@ -64,15 +65,19 @@ app.get('/produce', async function (req, res) {
   }));
 
   await sendToTopic(payloads).then(result=> {
+    console.error('Messages sent to topic');
     res.send('Messages sent to topic\n');
   }).catch(error => {
+    console.error(error);
     next(err); // Pass errors to Express.
   });
 });
 
 app.get('/hash/:id', function (req, res) {
-  var hash = crypto.createHmac('sha256', config.hashSalt+config.hashSecret).update(req.params.id).digest('base64');
-  res.send(hash);
+  var hmac = crypto.createHmac('sha256', config.hashSalt+config.hashSecret);
+  var hash = hmac.update(req.params.id);
+  var signature = hash.digest('base64');
+  res.send(signature);
 });
 
 producer.on('ready', function () {
