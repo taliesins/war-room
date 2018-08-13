@@ -48,18 +48,26 @@ app.get('/healthz', function (req, res) {
   res.send('I am happy and healthy\n');
 });
 
-app.get('/produce', function (req, res) {
+app.get('/produce', async function (req, res) {
   var message = 'a message';
   var keyedMessage = new KeyedMessage('keyed', 'a keyed message');
-
-  producer.send([
+  var payloads = [
     { topic: topic, partition: p, messages: [message, keyedMessage], attributes: a }
-  ], function (err, result) {
-    console.log(err || result);
-    process.exit();
-  });  
-  
-  res.send('Hello Docker World\n');
+  ];
+
+  const sendToTopic = (payloads) => new Promise((resolve, reject) => producer.send(payloads, function (err, result) {
+    if (err) {
+      return reject(err)
+    }
+
+    return resolve(result)
+  }));
+
+  await sendToTopic(payloads).then(result=> {
+    res.send('Messages sent to topic\n');
+  }).catch(error => {
+    next(err); // Pass errors to Express.
+  });
 });
 
 app.get('/hash/:id', function (req, res) {
@@ -103,20 +111,31 @@ process.on('SIGTERM', async function onSigterm () {
 
 // shut down server
 async function shutdown() {
-  const serverClose = () => new Promise(resolve => server.close(err => resolve(err)));
-  const producerClose = () => new Promise(resolve => producer.close(err => resolve(err)));
-  
-  serverCloseErr = await serverClose()
-  if (serverCloseErr) {
-    console.error(serverCloseErr);
-    process.exitCode = 1;
-  } 
+  const producerClose = (messages) => new Promise((resolve, reject) => producer.close(function (err) {
+    if (err) {
+      return reject(err)
+    }
 
-  producerCloseErr = await producerClose();
-  if (producerCloseErr) {
-    console.error(producerCloseErr);
+    return resolve()
+  }));
+
+  const serverClose = (messages) => new Promise((resolve, reject) => server.close(function (err) {
+    if (err) {
+      return reject(err)
+    }
+
+    return resolve()
+  }));
+
+  await producerClose().catch(error => {
+    console.error(error);
     process.exitCode = 1;
-  } 
+  });
+
+  await serverClose().catch(error => {
+    console.error(error);
+    process.exitCode = 1;
+  });
 
   process.exit();
 }
